@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Github, Mail, ArrowRight } from "lucide-react";
+import { Sparkles, Code2, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -45,7 +45,7 @@ export default function LoginPage() {
               onClick={() => alert("Connecting to GitHub Auth...")}
               className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95"
             >
-              <Github size={20} />
+              <Code2 size={20} />
               Continue with GitHub
             </button>
           </div>
