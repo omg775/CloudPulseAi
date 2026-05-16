@@ -27,6 +27,17 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  
+  const handleUpgrade = () => {
+    alert("Pro Plan: This feature is coming soon! Get ready for advanced AI insights.");
+  };
+
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to log out?")) {
+      alert("Logging out... Redirecting to login page.");
+      window.location.href = "/login";
+    }
+  };
 
   return (
     <aside className="w-64 h-screen border-r border-white/5 bg-[#050505] flex flex-col fixed left-0 top-0 z-40">
@@ -67,7 +78,10 @@ export default function Sidebar() {
           <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">
             Unlock advanced AI insights and multi-account support.
           </p>
-          <button className="w-full py-2 bg-white text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">
+          <button 
+            onClick={handleUpgrade}
+            className="w-full py-2 bg-white text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity active:scale-95"
+          >
             Upgrade Now
           </button>
         </div>
@@ -77,7 +91,10 @@ export default function Sidebar() {
             <Settings size={20} />
             <span className="text-sm">Settings</span>
           </Link>
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-400/5 rounded-xl transition-all">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-400/5 rounded-xl transition-all active:scale-95"
+          >
             <LogOut size={20} />
             <span className="text-sm">Logout</span>
           </button>

@@ -29,7 +29,10 @@ export default function LoginPage() {
 
         <div className="glass p-8 rounded-[2rem] border border-white/5 space-y-6">
           <div className="space-y-4">
-            <button className="w-full py-3 px-4 rounded-xl bg-white text-black font-bold flex items-center justify-center gap-3 hover:bg-white/90 transition-all">
+            <button 
+              onClick={() => alert("Connecting to Google Auth...")}
+              className="w-full py-3 px-4 rounded-xl bg-white text-black font-bold flex items-center justify-center gap-3 hover:bg-white/90 transition-all active:scale-95 shadow-lg shadow-white/5"
+            >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -38,7 +41,10 @@ export default function LoginPage() {
               </svg>
               Continue with Google
             </button>
-            <button className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center justify-center gap-3 hover:bg-white/10 transition-all">
+            <button 
+              onClick={() => alert("Connecting to GitHub Auth...")}
+              className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 font-bold flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95"
+            >
               <Github size={20} />
               Continue with GitHub
             </button>
@@ -53,19 +59,27 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={(e) => {
+            e.preventDefault();
+            alert("Magic link sent! Check your inbox.");
+            window.location.href = "/dashboard";
+          }}>
             <div className="space-y-2">
               <label className="text-sm font-medium ml-1">Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                 <input 
                   type="email" 
+                  required
                   placeholder="name@company.com"
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                 />
               </div>
             </div>
-            <button className="w-full py-4 bg-primary text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <button 
+              type="submit"
+              className="w-full py-4 bg-primary text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+            >
               Send Magic Link <ArrowRight size={18} />
             </button>
           </form>

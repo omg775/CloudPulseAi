@@ -26,6 +26,8 @@ import {
   Bar,
   Cell
 } from "recharts";
+import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 const spendData = [
   { name: "May 1", amount: 400 },
@@ -37,15 +39,60 @@ const spendData = [
   { name: "May 30", amount: 1240 },
 ];
 
-const serviceData = [
-  { name: "EC2", amount: 4500, color: "var(--primary)" },
-  { name: "S3", amount: 2100, color: "#3b82f6" },
-  { name: "RDS", amount: 1800, color: "#a855f7" },
-  { name: "Lambda", amount: 900, color: "#f59e0b" },
-  { name: "CloudFront", amount: 600, color: "#10b981" },
-];
-
 export default function DashboardOverview() {
+  const [summary, setSummary] = useState<any>(null);
+  const [spendData, setSpendData] = useState<any[]>([]);
+  const [serviceData, setServiceData] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [summaryRes, spendRes, serviceRes, recsRes] = await Promise.all([
+          fetch('http://localhost:8080/api/dashboard/summary'),
+          fetch('http://localhost:8080/api/dashboard/charts/daily-spend'),
+          fetch('http://localhost:8080/api/dashboard/charts/service-breakdown'),
+          fetch('http://localhost:8080/api/recommendations')
+        ]);
+
+        const summaryData = await summaryRes.json();
+        const dailySpendData = await spendRes.json();
+        const serviceBreakdownData = await serviceRes.json();
+        const recommendationsData = await recsRes.json();
+
+        setSummary(summaryData);
+        setSpendData(dailySpendData);
+        setServiceData(serviceBreakdownData);
+        setRecommendations(recommendationsData);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleGenerateReport = () => {
+    alert("Generating your cloud cost report... Check your downloads in a few seconds.");
+  };
+
+  const handleApplyRecommendations = () => {
+    alert("Applying AI recommendations to your AWS environment. This will take a moment...");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground font-medium">Crunching your cloud data...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8 pb-12">
       <div className="flex items-end justify-between">
@@ -54,12 +101,15 @@ export default function DashboardOverview() {
           <p className="text-muted-foreground">Welcome back, Alex. Here's your cloud at a glance.</p>
         </div>
         <div className="flex gap-3">
-          <select className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none">
-            <option>Last 30 Days</option>
-            <option>Last 7 Days</option>
-            <option>Year to Date</option>
+          <select className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none cursor-pointer hover:bg-white/10 transition-colors">
+            <option className="bg-black">Last 30 Days</option>
+            <option className="bg-black">Last 7 Days</option>
+            <option className="bg-black">Year to Date</option>
           </select>
-          <button className="bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">
+          <button 
+            onClick={handleGenerateReport}
+            className="bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90 transition-all hover:scale-105 active:scale-95"
+          >
             Generate Report
           </button>
         </div>
@@ -69,15 +119,15 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Monthly Spend" 
-          value="$12,450.80" 
-          trend="+12.5%" 
-          trendUp={true} 
+          value={`$${summary?.totalMonthlySpend?.toLocaleString() || '0'}`} 
+          trend={summary?.trend || '0%'} 
+          trendUp={summary?.trend?.startsWith('+')} 
           icon={DollarSign}
           color="primary"
         />
         <StatCard 
           title="AI Savings Est." 
-          value="$1,240.00" 
+          value={`$${summary?.aiSavingsEstimate?.toLocaleString() || '0'}`} 
           trend="-8.2%" 
           trendUp={false} 
           icon={Zap}
@@ -85,7 +135,7 @@ export default function DashboardOverview() {
         />
         <StatCard 
           title="Budget Usage" 
-          value="84%" 
+          value={`${summary?.budgetUsagePercent || '0'}%`} 
           trend="On Track" 
           trendUp={false} 
           icon={Target}
@@ -93,7 +143,7 @@ export default function DashboardOverview() {
         />
         <StatCard 
           title="Active Resources" 
-          value="124" 
+          value={summary?.activeResourcesCount?.toString() || '0'} 
           trend="+4 new" 
           trendUp={true} 
           icon={Cpu}
@@ -170,24 +220,33 @@ export default function DashboardOverview() {
           </div>
 
           <div className="space-y-4 mb-8">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer group">
-              <p className="text-sm font-medium mb-1 group-hover:text-primary transition-colors">Underutilized EC2 Detected</p>
-              <p className="text-xs text-muted-foreground">i-0a12b34c56 is running at 2% CPU. Consider downsizing to t3.nano.</p>
-              <div className="mt-3 text-xs font-bold text-primary flex items-center gap-1">
-                Save $42.50/mo <ArrowUpRight size={12} />
+            {recommendations.map((rec, index) => (
+              <div 
+                key={index}
+                onClick={() => alert(`Details for: ${rec.title}`)}
+                className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer group"
+              >
+                <div className="flex justify-between items-start mb-1">
+                  <p className="text-sm font-medium group-hover:text-primary transition-colors">{rec.title}</p>
+                  <span className={cn(
+                    "text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase",
+                    rec.impact === 'HIGH' ? "bg-red-400/20 text-red-400" : "bg-primary/20 text-primary"
+                  )}>
+                    {rec.impact}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2">{rec.description}</p>
+                <div className="mt-3 text-xs font-bold text-primary flex items-center gap-1">
+                  Save ${rec.potentialSavings}/mo <ArrowUpRight size={12} />
+                </div>
               </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer group">
-              <p className="text-sm font-medium mb-1 group-hover:text-primary transition-colors">S3 Intelligent Tiering</p>
-              <p className="text-xs text-muted-foreground">3 buckets haven't been accessed in 90 days. Move to Glacier.</p>
-              <div className="mt-3 text-xs font-bold text-primary flex items-center gap-1">
-                Save $128.00/mo <ArrowUpRight size={12} />
-              </div>
-            </div>
+            ))}
           </div>
 
-          <button className="mt-auto w-full py-4 bg-primary text-black font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+          <button 
+            onClick={handleApplyRecommendations}
+            className="mt-auto w-full py-4 bg-primary text-black font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
+          >
             Apply Recommendations
           </button>
         </div>
@@ -227,7 +286,12 @@ export default function DashboardOverview() {
         <div className="glass rounded-3xl p-8 border border-white/5 overflow-hidden">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-bold">Top Resources</h3>
-            <button className="text-xs text-muted-foreground hover:text-white transition-colors">View All</button>
+            <button 
+              onClick={() => alert("Redirecting to full resources list...")}
+              className="text-xs text-muted-foreground hover:text-white transition-colors active:scale-95"
+            >
+              View All
+            </button>
           </div>
           <div className="space-y-6">
             <ResourceItem name="prod-db-cluster" type="RDS" cost="$1,240.50" change="+2.4%" status="healthy" />

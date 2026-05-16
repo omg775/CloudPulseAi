@@ -3,6 +3,7 @@
 import Hero from "@/components/landing/Hero";
 import { motion } from "framer-motion";
 import { Shield, Zap, BarChart3, Cpu, Sparkles, Bell } from "lucide-react";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
@@ -34,10 +35,13 @@ function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-sm font-medium hover:text-white transition-colors">Login</button>
-          <button className="px-5 py-2.5 bg-white text-black text-sm font-bold rounded-lg hover:bg-white/90 transition-colors">
+          <Link href="/login" className="text-sm font-medium hover:text-white transition-colors">Login</Link>
+          <Link 
+            href="/login" 
+            className="px-5 py-2.5 bg-white text-black text-sm font-bold rounded-lg hover:bg-white/90 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-white/5"
+          >
             Get Started
-          </button>
+          </Link>
         </div>
       </div>
     </nav>
@@ -119,7 +123,12 @@ function Pricing() {
               <li className="flex items-center gap-2"><Shield size={16} className="text-primary" /> Basic Cost Reports</li>
               <li className="flex items-center gap-2"><Shield size={16} className="text-primary" /> 1 AI Recommendation/wk</li>
             </ul>
-            <button className="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors">Start for Free</button>
+            <button 
+              onClick={() => window.location.href = '/login'}
+              className="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all hover:border-primary/50 active:scale-95"
+            >
+              Start for Free
+            </button>
           </div>
 
           {/* Pro */}
@@ -133,7 +142,12 @@ function Pricing() {
               <li className="flex items-center gap-2"><Shield size={16} className="text-primary" /> Unlimited AI Insights</li>
               <li className="flex items-center gap-2"><Shield size={16} className="text-primary" /> Multi-account Support</li>
             </ul>
-            <button className="w-full py-3 rounded-xl bg-primary text-black font-bold hover:opacity-90 transition-opacity">Go Pro</button>
+            <button 
+              onClick={() => alert("Upgrade to Growth coming soon!")}
+              className="w-full py-3 rounded-xl bg-primary text-black font-bold hover:opacity-90 transition-all hover:scale-105 active:scale-95"
+            >
+              Go Pro
+            </button>
           </div>
 
           {/* Enterprise */}
@@ -145,7 +159,12 @@ function Pricing() {
               <li className="flex items-center gap-2"><Shield size={16} className="text-primary" /> Custom AI Training</li>
               <li className="flex items-center gap-2"><Shield size={16} className="text-primary" /> Dedicated Support</li>
             </ul>
-            <button className="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-colors">Contact Sales</button>
+            <button 
+              onClick={() => alert("Contacting sales team... We'll be in touch via email.")}
+              className="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all hover:border-primary/50 active:scale-95"
+            >
+              Contact Sales
+            </button>
           </div>
         </div>
       </div>
